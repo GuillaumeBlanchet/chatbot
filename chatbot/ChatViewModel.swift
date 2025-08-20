@@ -24,7 +24,7 @@ class ChatViewModel: ObservableObject {
     
     init() {
         // TODO: store this api key in keychain:
-        self.openAI = OpenAI(apiToken: "YOUR_OPENAI_API_KEY_HERE")
+         self.openAI = OpenAI(apiToken: "YOUR_OPENAI_API_KEY_HERE")
 
         let welcomeMessage = createMessage(userId: "bot", text: "Hey! What's up?")
         messages.append(welcomeMessage)
@@ -104,7 +104,7 @@ extension ChatViewModel {
         createdAt: Date = Date()
     ) -> Message {
         let user = userId == "bot"
-            ? User(id: "bot", name: "chatbot", avatarURL: nil, isCurrentUser: false)
+            ? User(id: "bot", name: "chatbot", avatarURL: self.createImageDataURL(named: "bot"), isCurrentUser: false)
             : User(id: "user", name: "You", avatarURL: nil, isCurrentUser: true)
         
         return Message(
@@ -114,5 +114,16 @@ extension ChatViewModel {
             createdAt: createdAt,
             text: text
         )
+    }
+    
+    // Helper function to create a data URL from an image in Assets for the chatbot avatar
+    private func createImageDataURL(named imageName: String) -> URL? {
+        guard let uiImage = UIImage(named: imageName),
+              let imageData = uiImage.pngData() else {
+            return nil
+        }
+        let base64String = imageData.base64EncodedString()
+        let dataURLString = "data:image/png;base64,\(base64String)"
+        return URL(string: dataURLString)
     }
 }
