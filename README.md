@@ -12,7 +12,7 @@ A simple and elegant iOS chatbot application built with SwiftUI, demonstrating t
 
 ## 📱 Demo
 
-<video src='https://github.com/user-attachments/assets/201578ea-2758-43b8-befc-9f7b426d07f2' width=180 ></video>
+<video src='https://github.com/user-attachments/assets/df525424-8b1b-40e3-9fc7-c96c59501d0f' width=180 ></video>
 
 ## 🛠 Tech Stack
 
