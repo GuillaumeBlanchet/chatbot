@@ -36,20 +36,20 @@ class ChatViewModel: ObservableObject {
         
         // Create initial bot message for streaming
         let botMessageId = UUID().uuidString
-        let botMessage = createMessage(messageId: botMessageId, userId: "bot", text: "typing...", status: .sending)
+        let botMessage = createMessage(messageId: botMessageId, userId: "bot", text: "thinking...", status: .sending)
         messages.append(botMessage)
         
         // Start OpenAI response
         Task {
-            await getOpenAIResponse(userText: draft.text, botMessageId: botMessageId)
+            await streamOpenAIResponse(userText: draft.text, botMessageId: botMessageId)
         }
     }
     
-    private func getOpenAIResponse(userText: String, botMessageId: String) async {
+    private func streamOpenAIResponse(userText: String, botMessageId: String) async {
         do {
             // Create conversation context with all messages
             var chatMessages: [ChatQuery.ChatCompletionMessageParam] = [
-                .system(.init(content: .textContent("You're a cheerful chatbot who brings joy and humor to every conversation. You answer with very very short and concise answer")))
+                .system(.init(content: .textContent("You're a cheerful chatbot who brings joy and humor to every conversation.")))
             ]
             
             // Add recent conversation history (last 10 messages to keep context manageable)
@@ -63,26 +63,30 @@ class ChatViewModel: ObservableObject {
             }
             
             let query = ChatQuery(
-                messages: chatMessages, 
-                model: .gpt5_nano,
-                stream: false
+                // OpenAI MacPaw doesn't support gpt5_nano yet for streaming, so we use gpt4_1_nano
+                messages: chatMessages, model: .gpt4_1_nano,
+                temperature: 0.7,
+                stream: true
             )
             
-            // Get the complete response from OpenAI
-            let result = try await openAI.chats(query: query)
+            var streamText = ""
             
-            if let content = result.choices.first?.message.content {
-                // Update the bot message with the complete response
-                if let messageIndex = messages.firstIndex(where: { $0.id == botMessageId }) {
-                    var updatedMessage = messages[messageIndex]
-                    updatedMessage.text = content
-                    updatedMessage.status = .sent
-                    messages[messageIndex] = updatedMessage
+            for try await result in openAI.chatsStream(query: query) {
+                if let content = result.choices.first?.delta.content {
+                    streamText += content
+                    
+                    // Update the bot message with accumulated text
+                    if let messageIndex = messages.firstIndex(where: { $0.id == botMessageId }) {
+                        var updatedMessage = messages[messageIndex]
+                        updatedMessage.text = streamText
+                        updatedMessage.status = .sent
+                        messages[messageIndex] = updatedMessage
+                    }
                 }
             }
             
         } catch {
-            print("Error getting OpenAI response: \(error)")
+            print("Error streaming OpenAI response: \(error)")
             
             // Fallback to error message
             if let messageIndex = messages.firstIndex(where: { $0.id == botMessageId }) {
