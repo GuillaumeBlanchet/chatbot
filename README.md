@@ -2,6 +2,8 @@
 
 A simple and elegant iOS chatbot application built with SwiftUI, demonstrating the integration of [Exyte's Chat library](https://github.com/exyte/Chat) and [MacPaw's OpenAI library](https://github.com/MacPaw/OpenAI).
 
+See my [blog post about it](https://ducttapecode.com/blog/swiftui-chatbot/article/)
+
 ## 🎯 Features
 
 - **Modern SwiftUI Interface**: Clean and responsive chat UI
