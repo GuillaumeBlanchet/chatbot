@@ -16,7 +16,7 @@ struct ChatGoalView: View {
             chatViewModel.send(draft: draft)
         }
         .setAvailableInputs([AvailableInputType.text])
-        .navigationTitle("Together Toward Your Goal")
+        .navigationTitle("You funny chatbot")
         .navigationBarTitleDisplayMode(.inline)
     }
 }
